@@ -572,20 +572,20 @@ class MasterConfig_loaders(ConfigErrorsMixin, unittest.TestCase):
         self.assertIn('revision', self.cfg.validation)
 
     def test_load_db_defaults(self):
-        self.cfg.load_db(self.filename, {})
+        self.cfg.load_dbconfig(self.filename, {})
         self.assertResults(db={"db_url": 'sqlite:///state.sqlite'})
 
     def test_load_db_db_url(self):
-        self.cfg.load_db(self.filename, {"db_url": 'abcd'})
+        self.cfg.load_dbconfig(self.filename, {"db_url": 'abcd'})
         self.assertResults(db={"db_url": 'abcd'})
 
     def test_load_db_dict(self):
-        self.cfg.load_db(self.filename, {'db': {'db_url': 'abcd'}})
+        self.cfg.load_dbconfig(self.filename, {'db': {'db_url': 'abcd'}})
         self.assertResults(db={"db_url": 'abcd'})
 
     def test_load_db_unk_keys(self):
         with capture_config_errors() as errors:
-            self.cfg.load_db(self.filename, {'db': {'db_url': 'abcd', 'bar': 'bar'}})
+            self.cfg.load_dbconfig(self.filename, {'db': {'db_url': 'abcd', 'bar': 'bar'}})
 
         self.assertConfigError(errors, "unrecognized keys in")
 
