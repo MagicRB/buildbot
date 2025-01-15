@@ -168,11 +168,15 @@ class DBConnector(service.ReconfigurableServiceMixin, service.AsyncMultiService)
         if self.configured_db_config is None:
             self.configured_db_config = yield self.master.get_db_config(self.master.config)
 
-        log.msg(f"Setting up database with URL {util.stripUrlPassword(self.configured_db_config.db_url)!r}")
+        log.msg(
+            f"Setting up database with URL {util.stripUrlPassword(self.configured_db_config.db_url)!r}"
+        )
 
         # set up the engine and pool
         self._engine = enginestrategy.create_engine(
-            self.configured_db_config.db_url, basedir=self.basedir, **self.configured_db_config.engine_kwargs
+            self.configured_db_config.db_url,
+            basedir=self.basedir,
+            **self.configured_db_config.engine_kwargs,
         )
         self.upsert = get_upsert_method(self._engine)
         self.has_native_upsert = self.upsert != get_upsert_method(None)

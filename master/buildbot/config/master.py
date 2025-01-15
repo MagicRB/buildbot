@@ -25,6 +25,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 from typing import ClassVar
+from typing import Generator
 from typing import Sequence
 
 from twisted.internet import defer
@@ -40,6 +41,7 @@ from buildbot.config.errors import ConfigErrors
 from buildbot.config.errors import capture_config_errors
 from buildbot.config.errors import error
 from buildbot.db.compression import ZStdCompressor
+from buildbot.interfaces import IProperties
 from buildbot.interfaces import IRenderable
 from buildbot.process.project import Project
 from buildbot.revlinks import default_revlink_matcher
@@ -139,15 +141,15 @@ class FileLoader(ComparableMixin):
 
         return config
 
+
 @implementer(IRenderable)
 @dataclass
 class DBConfig:
     db_url: str | interfaces.IRenderable = DEFAULT_DB_URL
-    engine_kwargs: dict[str, Any] = field(default_factory = lambda: {})
+    engine_kwargs: dict[str, Any] = field(default_factory=lambda: {})
 
     @defer.inlineCallbacks
-    def getRenderingFor(self, iprops: IProperties) -> Deferred:
-        db_url = None
+    def getRenderingFor(self, iprops: IProperties) -> Generator[Any, Any, DBConfig]:
         if interfaces.IRenderable.providedBy(self.db_url):
             db_url = yield iprops.render(self.db_url)
         else:
@@ -155,6 +157,7 @@ class DBConfig:
         engine_kwargs = yield iprops.render(self.engine_kwargs)
 
         return DBConfig(db_url, engine_kwargs)
+
 
 class MasterConfig(util.ComparableMixin):
     db: DBConfig
@@ -520,9 +523,9 @@ class MasterConfig(util.ComparableMixin):
         if 'db' in config_dict:
             if set(config_dict['db'].keys()) - set(['db_url', 'engine_kwargs']) and throwErrors:
                 error("unrecognized keys in c['db']")
-            dbconfig = DBConfig (
-                db_url = config_dict['db'].get('db_url', DEFAULT_DB_URL),
-                engine_kwargs = config_dict['db'].get('engine_kwargs', {})
+            dbconfig = DBConfig(
+                db_url=config_dict['db'].get('db_url', DEFAULT_DB_URL),
+                engine_kwargs=config_dict['db'].get('engine_kwargs', {}),
             )
         elif 'db_url' in config_dict:
             dbconfig = DBConfig(config_dict['db_url'])

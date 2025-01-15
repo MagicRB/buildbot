@@ -23,7 +23,8 @@ from unittest import mock
 from twisted.internet import defer
 from twisted.internet import reactor
 
-from buildbot.config.master import MasterConfig, DBConfig as MasterDBConfig
+from buildbot.config.master import DBConfig as MasterDBConfig
+from buildbot.config.master import MasterConfig
 from buildbot.secrets.manager import SecretManager
 from buildbot.test import fakedb
 from buildbot.test.fake import bworkermanager
