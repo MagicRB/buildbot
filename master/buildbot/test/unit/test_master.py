@@ -158,7 +158,7 @@ class StartupAndReconfig(dirs.DirsMixin, logging.LoggingMixin, TestReactorMixin,
         yield self.master.startService()
 
         self.assertEqual(
-            self.master.db.configured_url,
+            self.master.db.configured_db_config.db_url,
             'sqlite:///path-to-s3cr3t-db-file',
         )
 
@@ -231,7 +231,7 @@ class StartupAndReconfig(dirs.DirsMixin, logging.LoggingMixin, TestReactorMixin,
         yield self.master.secrets_manager.setup()
         yield self.master.db.setup()
         yield self.master.reconfigServiceWithBuildbotConfig(old)
-        self.assertEqual(self.master.db.configured_url, 'sqlite:///s3cr3t')
+        self.assertEqual(self.master.db.configured_db_config.db_url, 'sqlite:///s3cr3t')
 
         new = MasterConfig()
         new.db.db_url = old.db.db_url

@@ -28,7 +28,7 @@ class TestDbConfig(unittest.TestCase):
         self.master = yield fakemaster.make_master(
             self, wantRealReactor=True, wantDb=True, sqlite_memory=False
         )
-        self.db_url = self.master.db.configured_url
+        self.db_url = self.master.db.configured_db_config.db_url
         yield threads.deferToThread(self.createDbConfig)
 
     def createDbConfig(self):
@@ -78,7 +78,7 @@ class TestDbConfigNotInitialized(unittest.TestCase):
         self.master = yield fakemaster.make_master(
             self, wantRealReactor=True, wantDb=True, sqlite_memory=False
         )
-        self.db_url = self.master.db.configured_url
+        self.db_url = self.master.db.configured_db_config.db_url
 
     def createDbConfig(self, db_url=None):
         return dbconfig.DbConfig({"db_url": db_url or self.db_url}, self.master.basedir)
