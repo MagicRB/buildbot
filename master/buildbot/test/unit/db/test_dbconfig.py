@@ -28,11 +28,14 @@ class TestDbConfig(unittest.TestCase):
         self.master = yield fakemaster.make_master(
             self, wantRealReactor=True, wantDb=True, sqlite_memory=False
         )
-        self.db_url = self.master.db.configured_db_config.db_url
+        self.db_config = {
+            "db_url": self.master.db.configured_db_config,
+            "engine_kwargs": self.master.db.configured_db_config
+        }
         yield threads.deferToThread(self.createDbConfig)
 
     def createDbConfig(self):
-        self.dbConfig = dbconfig.DbConfig({"db_url": self.db_url}, self.master.basedir)
+        self.dbConfig = dbconfig.DbConfig(, self.master.basedir)
 
     def test_basic(self):
         def thd():
@@ -59,16 +62,16 @@ class TestDbConfig(unittest.TestCase):
 
     # supports the 3 different ways to declare db_url in the master.cfg
     def test_init1(self):
-        obj = dbconfig.DbConfig({"db_url": self.db_url}, self.master.basedir)
-        self.assertEqual(obj.db_url, self.db_url)
+        obj = dbconfig.DbConfig(self.db_config, self.master.basedir)
+        self.assertEqual(obj.db_config, master.config.DBConfig(**self.db_config))
 
     def test_init2(self):
-        obj = dbconfig.DbConfig({"db": {"db_url": self.db_url}}, self.master.basedir)
-        self.assertEqual(obj.db_url, self.db_url)
+        obj = dbconfig.DbConfig({"db": self.db_config}, self.master.basedir)
+        self.assertEqual(obj.db_config, master.config.DBConfig(**self.db_config))
 
     def test_init3(self):
         obj = dbconfig.DbConfig({}, self.master.basedir)
-        self.assertEqual(obj.db_url, "sqlite:///state.sqlite")
+        self.assertEqual(obj.db_config, master.config.DBConfig("sqlite:///state.sqlite"))
 
 
 class TestDbConfigNotInitialized(unittest.TestCase):
