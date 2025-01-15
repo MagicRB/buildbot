@@ -53,7 +53,7 @@ class TestDBConnector(TestReactorMixin, unittest.TestCase):
 
     @defer.inlineCallbacks
     def startService(self, check_version=False):
-        self.master.config.db['db_url'] = self.db_url
+        self.master.config.db.db_url = self.db_url
         yield self.db.setup(check_version=check_version)
         yield self.db.startService()
         yield self.db.reconfigServiceWithBuildbotConfig(self.master.config)
