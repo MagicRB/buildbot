@@ -27,6 +27,7 @@ from typing import Any
 from typing import ClassVar
 from typing import Sequence
 
+from twisted.internet import defer
 from twisted.python import log
 from twisted.python.compat import execfile
 from zope.interface import implementer
@@ -138,10 +139,22 @@ class FileLoader(ComparableMixin):
 
         return config
 
+@implementer(IRenderable)
 @dataclass
 class DBConfig:
-    db_url: str = DEFAULT_DB_URL
+    db_url: str | interfaces.IRenderable = DEFAULT_DB_URL
     engine_kwargs: dict[str, Any] = field(default_factory = lambda: {})
+
+    @defer.inlineCallbacks
+    def getRenderingFor(self, iprops: IProperties) -> Deferred:
+        db_url = None
+        if interfaces.IRenderable.providedBy(self.db_url):
+            db_url = yield iprops.render(self.db_url)
+        else:
+            db_url = self.db_url
+        engine_kwargs = yield iprops.render(self.engine_kwargs)
+
+        return DBConfig(db_url, engine_kwargs)
 
 class MasterConfig(util.ComparableMixin):
     db: DBConfig
