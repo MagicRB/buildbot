@@ -73,14 +73,16 @@ class TestedMaster:
             basedir = case.mktemp()
         os.makedirs(basedir, exist_ok=True)
         config_dict['buildbotNetUsageData'] = None
-        self.master = BuildMaster(basedir, reactor=reactor, config_loader=DictLoader(config_dict))
 
-        if 'db_url' not in config_dict:
-            config_dict['db_url'] = 'sqlite://'
+        config_dict.setdefault('db', {})
+        if 'db_url' not in config_dict['db']:
+            config_dict['db']['db_url'] = 'sqlite://'
+
+        self.master = BuildMaster(basedir, reactor=reactor, config_loader=DictLoader(config_dict))
 
         # TODO: Allow BuildMaster to transparently upgrade the database, at least
         # for tests.
-        self.master.config.db.db_url = config_dict['db_url']
+        self.master.config.db.db_url = config_dict['db']['db_url']
         await self.master.db.setup(check_version=False)
         await self.master.db.model.upgrade()
         self.master.db.setup = lambda: None
