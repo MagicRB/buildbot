@@ -1,1 +1,1 @@
-Add a ``Build.skipBuildIf`` field and ``BuildFactory.setSkipBuildIf`` allowing for skipping whole builds
+Add a ``Build.do_build`` field and ``BuilderConfig.do_build_if`` allowing for skipping whole builds
