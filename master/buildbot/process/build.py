@@ -321,7 +321,10 @@ class Build(properties.PropertiesMixin):
         finishes. This Deferred is guaranteed to never errback."""
         self.workerforbuilder = workerforbuilder
         self.conn = None
-        self.do_build = self.builder.config.do_build_if(self)
+        if self.builder.config is not None:
+            self.do_build = self.builder.config.do_build_if(self)
+        else:
+            self.do_build = True
 
         worker = workerforbuilder.worker
         assert worker is not None
