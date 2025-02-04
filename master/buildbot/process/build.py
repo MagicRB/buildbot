@@ -117,8 +117,6 @@ class Build(properties.PropertiesMixin):
 
         self.terminate = False
 
-        self.skipBuildIf = lambda _x: False
-
         self._acquiringLock = None
         self._builderid = None
         # overall results, may downgrade after each step
@@ -323,7 +321,7 @@ class Build(properties.PropertiesMixin):
         finishes. This Deferred is guaranteed to never errback."""
         self.workerforbuilder = workerforbuilder
         self.conn = None
-        self.skipBuild = self.skipBuildIf(self)
+        self.do_build = self.builder.config.do_build_if(self)
 
         worker = workerforbuilder.worker
         assert worker is not None
@@ -333,7 +331,7 @@ class Build(properties.PropertiesMixin):
         self.workername = worker.workername
         self.worker_info = worker.info
 
-        log.msg(f"{self}.startBuild{' skipped' if self.skipBuild else ''}")
+        log.msg(f"{self}.startBuild{' skipped' if not self.do_build else ''}")
 
         # TODO: this will go away when build collapsing is implemented; until
         # then we just assign the build to the first buildrequest
@@ -360,7 +358,7 @@ class Build(properties.PropertiesMixin):
                 yield self.stopBuild(reason=reason)
                 return
 
-        if self.skipBuild:
+        if not self.do_build:
             Build.setupBuildProperties(
                 self.getProperties(), self.requests, self.sources, self.number
             )

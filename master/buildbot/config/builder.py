@@ -47,6 +47,7 @@ class BuilderConfig(util_config.ConfiguredMixin):
         canStartBuild=None,
         defaultProperties=None,
         project=None,
+        do_build_if: Callable[[Build], bool] | None = None
     ):
         # name is required, and can't start with '_'
         if not name or type(name) not in (bytes, str):
@@ -163,6 +164,11 @@ class BuilderConfig(util_config.ConfiguredMixin):
         else:
             error("builder description format must be None or \"markdown\"")
             self.description_format = None
+
+        if do_build_if is not None:
+            self.do_build_if = do_build_if
+        else:
+            self.do_build_if = lambda x: True
 
     def getConfigDict(self):
         # note: this method will disappear eventually - put your smarts in the
