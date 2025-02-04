@@ -24,6 +24,7 @@ from buildbot.util import bytes2unicode
 from buildbot.util import config as util_config
 from buildbot.util import safeTranslate
 from typing import Callable
+from typing import Optional
 
 RESERVED_UNDERSCORE_NAMES = ["__Janitor"]
 
@@ -49,7 +50,7 @@ class BuilderConfig(util_config.ConfiguredMixin):
         canStartBuild=None,
         defaultProperties=None,
         project=None,
-        do_build_if: Callable[[Build], bool] | None = None
+        do_build_if: Optional[Callable[[Build], bool]] = None
     ):
         # name is required, and can't start with '_'
         if not name or type(name) not in (bytes, str):
